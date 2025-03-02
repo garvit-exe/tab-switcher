@@ -1,0 +1,23 @@
+{
+    "manifest_version": 3,
+    "name": "Spotlight Tab Switcher",
+    "version": "1.0",
+    "description": "Switch tabs using a Spotlight-like overlay (non-chrome:// pages only).",
+    "permissions": ["tabs", "activeTab", "scripting"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "commands": {
+      "activate-spotlight": {
+        "suggested_key": {
+          "default": "Ctrl+Space",
+          "mac": "Alt+Space"
+        },
+        "description": "Activate the Spotlight Tab Switcher"
+      }
+    },
+    "action": {
+      "default_title": "Spotlight Tab Switcher"
+    }
+  }
+  

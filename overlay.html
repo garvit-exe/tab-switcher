@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Spotlight Input</title>
+        <style>
+            body {
+                margin: 0;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+            #container {
+                background: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                max-width: 400px;
+                width: 90%;
+                text-align: center;
+            }
+            input {
+                width: 100%;
+                font-size: 18px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                outline: none;
+                box-sizing: border-box;
+                color: #000;
+                background: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <input
+                type="text"
+                id="spotlight-input"
+                placeholder="Enter tab index or title..."
+            />
+        </div>
+        <script>
+            // Extract the original window ID from the query string.
+            const params = new URLSearchParams(window.location.search);
+            const originalWindowId = params.get("windowId");
+            const input = document.getElementById("spotlight-input");
+
+            // Ensure the input gets focus.
+            setTimeout(() => {
+                input.focus();
+            }, 0);
+
+            // Capture key events on the input.
+            input.addEventListener("keydown", function (e) {
+                e.stopPropagation();
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    let query = input.value.trim();
+                    if (query) {
+                        let treatAsText = false;
+                        if (
+                            (query.startsWith('"') && query.endsWith('"')) ||
+                            (query.startsWith("'") && query.endsWith("'")) ||
+                            (query.startsWith("`") && query.endsWith("`"))
+                        ) {
+                            treatAsText = true;
+                            query = query.slice(1, query.length - 1).trim();
+                        }
+                        if (!treatAsText && /^\d+$/.test(query)) {
+                            chrome.runtime.sendMessage({
+                                action: "activateTabByIndex",
+                                index: parseInt(query, 10) - 1,
+                                windowId: Number(originalWindowId),
+                            });
+                        } else {
+                            chrome.runtime.sendMessage({
+                                action: "activateTabByTitle",
+                                query: query,
+                                windowId: Number(originalWindowId),
+                            });
+                        }
+                    }
+                    window.close();
+                } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    window.close();
+                }
+            });
+
+            // Optionally, block other key events at the document level.
+            document.addEventListener("keydown", function (e) {
+                e.stopPropagation();
+            });
+        </script>
+    </body>
+</html>
